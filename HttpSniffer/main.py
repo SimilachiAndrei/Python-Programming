@@ -70,3 +70,20 @@ class TCP(Structure):
         if socket_buffer:
             self.sport = socket.ntohs(self.sport)
             self.dport = socket.ntohs(self.dport)
+
+
+try:
+    raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+    # raw_socket.bind(("wlo1",0))
+
+    while True:
+        packet, addr = raw_socket.recvfrom(65535)
+        print("Packet captured!")
+
+except socket.error as e:
+    print(f"Socket error: {e}")
+except KeyboardInterrupt:
+    print("Exiting...")
+finally:
+    if 'raw_socket' in locals():
+        raw_socket.close()
