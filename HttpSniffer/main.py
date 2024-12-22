@@ -65,3 +65,8 @@ class TCP(Structure):
             return cls.from_buffer_copy(socket_buffer)
         except ValueError:
             return None
+
+    def __init__(self, socket_buffer):
+        if socket_buffer:
+            self.sport = socket.ntohs(self.sport)
+            self.dport = socket.ntohs(self.dport)
