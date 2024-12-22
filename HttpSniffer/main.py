@@ -43,6 +43,7 @@ class IP(Structure):
         if socket_buffer:
             self.src_address = socket.inet_ntoa(struct.pack("<L", self.src))
             self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
+            self.protocol = {1: "ICMP", 6: "TCP", 17: "UDP"}.get(self.protocol_num, str(self.protocol_num))
 
 
 class TCP(Structure):
