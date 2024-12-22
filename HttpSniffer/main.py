@@ -77,8 +77,28 @@ try:
     # raw_socket.bind(("wlo1",0))
 
     while True:
-        packet, addr = raw_socket.recvfrom(65535)
-        print("Packet captured!")
+        packet, addr = raw_socket.recvfrom(256)
+
+        ethernet_header = Ethernet(packet[:14])
+        ip_header = IP(packet[14:34])
+
+        if ip_header:
+            ip_header_length = ip_header.ihl * 4
+            if ip_header.protocol_num == 6:
+                tcp_header = TCP(packet[14 + ip_header_length: 14 + ip_header_length + 20])
+                if tcp_header and (tcp_header.sport == 80 or tcp_header.dport == 80):
+                    print("Ethernet:")
+                    print(f"  Source MAC: {ethernet_header.src_mac}")
+                    print(f"  Destination MAC: {ethernet_header.dst_mac}")
+                    print(f"  Protocol: {ethernet_header.proto}")
+                    print("IP:")
+                    print(f"  Source: {ip_header.src_address}")
+                    print(f"  Destination: {ip_header.dst_address}")
+                    print(f"  Protocol: {ip_header.protocol}")
+                    print("TCP:")
+                    print(f"  Source Port: {tcp_header.sport}")
+                    print(f"  Destination Port: {tcp_header.dport}")
+                    print("------------------------")
 
 except socket.error as e:
     print(f"Socket error: {e}")
