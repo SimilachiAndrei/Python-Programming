@@ -35,3 +35,19 @@ class IP(Structure):
             self.src_address = socket.inet_ntoa(struct.pack("<L", self.src))
             self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
 
+
+
+class TCP(Structure):
+    _fields_ = [
+        ("sport", c_ushort),
+        ("dport", c_ushort),
+        ("seq", c_uint32),
+        ("ack", c_uint32),
+        ("offset", c_ubyte, 4),
+        ("reserved", c_ubyte, 4),
+        ("flags", c_ubyte),
+        ("window", c_ushort),
+        ("checksum", c_ushort),
+        ("urgent_pointer", c_ushort)
+    ]
+
