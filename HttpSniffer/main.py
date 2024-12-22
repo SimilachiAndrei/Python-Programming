@@ -2,12 +2,14 @@ import socket
 import struct
 from ctypes import *
 
+
 class Ethernet(Structure):
     _fields_ = [
         ("dst", c_ubyte * 6),
         ("src", c_ubyte * 6),
         ("type", c_ushort)
     ]
+
 
 class IP(Structure):
     _fields_ = [
@@ -36,7 +38,6 @@ class IP(Structure):
             self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
 
 
-
 class TCP(Structure):
     _fields_ = [
         ("sport", c_ushort),
@@ -51,3 +52,8 @@ class TCP(Structure):
         ("urgent_pointer", c_ushort)
     ]
 
+    def __new__(cls, socket_buffer=None):
+        try:
+            return cls.from_buffer_copy(socket_buffer)
+        except ValueError:
+            return None
