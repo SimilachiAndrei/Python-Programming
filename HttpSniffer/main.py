@@ -19,3 +19,8 @@ class IP(Structure):
     ]
 
 
+    def __init__(self, socket_buffer=None):
+        if socket_buffer:
+            self.src_address = socket.inet_ntoa(struct.pack("<L", self.src))
+            self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
+
