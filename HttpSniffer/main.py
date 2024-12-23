@@ -123,7 +123,7 @@ class HTTP:
 
 try:
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-    # raw_socket.bind(("wlo1",0))
+    print("Listening for HTTP packets... Press Ctrl+C to stop.")
 
     while True:
         packet, addr = raw_socket.recvfrom(65535)
@@ -131,34 +131,35 @@ try:
         ethernet_header = Ethernet(packet[:14])
         ip_header = IP(packet[14:34])
 
-        if ip_header:
+        if ip_header and ip_header.protocol_num == 6:
             ip_header_length = ip_header.ihl * 4
-            if ip_header.protocol_num == 6:
-                tcp_header = TCP(packet[14 + ip_header_length: 14 + ip_header_length + 20])
-                if tcp_header and (tcp_header.sport == 80 or tcp_header.dport == 80):
-                    payload_offset = 14 + ip_header_length + (tcp_header.offset * 4)
-                    payload = packet[payload_offset:]
+            tcp_header = TCP(packet[14 + ip_header_length:14 + ip_header_length + 20])
 
+            if tcp_header and (tcp_header.sport == 80 or tcp_header.dport == 80):
+                payload_offset = 14 + ip_header_length + (tcp_header.offset * 4)
+                payload = packet[payload_offset:]
+
+                if payload:
                     http = HTTP(payload)
-                    print("Ethernet:")
-                    print(f"  Source MAC: {ethernet_header.src_mac}")
-                    print(f"  Destination MAC: {ethernet_header.dst_mac}")
-                    print(f"  Protocol: {ethernet_header.proto}")
-                    print("IP:")
-                    print(f"  Source: {ip_header.src_address}")
-                    print(f"  Destination: {ip_header.dst_address}")
-                    print(f"  Protocol: {ip_header.protocol}")
-                    print("TCP:")
-                    print(f"  Source Port: {tcp_header.sport}")
-                    print(f"  Destination Port: {tcp_header.dport}")
-                    print("HTTP:")
-                    print(http)
-                    print("------------------------")
+                    if http.headers:
+                        print("Ethernet:")
+                        print(f"  Source MAC: {ethernet_header.src_mac}")
+                        print(f"  Destination MAC: {ethernet_header.dst_mac}")
+                        print(f"  Protocol: {ethernet_header.proto}")
+                        print("IP:")
+                        print(f"  Source: {ip_header.src_address}")
+                        print(f"  Destination: {ip_header.dst_address}")
+                        print(f"  Protocol: {ip_header.protocol}")
+                        print("TCP:")
+                        print(f"  Source Port: {tcp_header.sport}")
+                        print(f"  Destination Port: {tcp_header.dport}")
+                        print(http)
+                        print("-" * 50)
 
 except socket.error as e:
     print(f"Socket error: {e}")
 except KeyboardInterrupt:
-    print("Exiting...")
+    print("\nExiting...")
 finally:
     if 'raw_socket' in locals():
         raw_socket.close()
