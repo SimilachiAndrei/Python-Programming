@@ -136,6 +136,10 @@ try:
             if ip_header.protocol_num == 6:
                 tcp_header = TCP(packet[14 + ip_header_length: 14 + ip_header_length + 20])
                 if tcp_header and (tcp_header.sport == 80 or tcp_header.dport == 80):
+                    payload_offset = 14 + ip_header_length + (tcp_header.offset * 4)
+                    payload = packet[payload_offset:]
+
+                    http = HTTP(payload)
                     print("Ethernet:")
                     print(f"  Source MAC: {ethernet_header.src_mac}")
                     print(f"  Destination MAC: {ethernet_header.dst_mac}")
@@ -147,6 +151,8 @@ try:
                     print("TCP:")
                     print(f"  Source Port: {tcp_header.sport}")
                     print(f"  Destination Port: {tcp_header.dport}")
+                    print("HTTP:")
+                    print(http)
                     print("------------------------")
 
 except socket.error as e:
