@@ -78,8 +78,11 @@ class HTTP:
         self.method = None
         self.uri = None
         self.version = None
+        self.status_code = None
+        self.status_message = None
         self.headers = {}
         self.payload = None
+        self.is_response = False
         self.parse_http_data()
 
     def __str__(self):
