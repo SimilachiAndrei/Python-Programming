@@ -71,6 +71,15 @@ class TCP(Structure):
             self.sport = socket.ntohs(self.sport)
             self.dport = socket.ntohs(self.dport)
 
+class HTTP:
+    def __init__(self, raw_data):
+        self.raw_data = raw_data
+        self.method = None
+        self.uri = None
+        self.version = None
+        self.headers = {}
+        self.payload = None
+
 
 try:
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
