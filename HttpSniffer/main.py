@@ -82,6 +82,18 @@ class HTTP:
         self.payload = None
         self.parse_http_data()
 
+    def __str__(self):
+        output = []
+        if self.method and self.uri and self.version:
+            output.append(f"HTTP Request: {self.method} {self.uri} {self.version}")
+        output.append("Headers:")
+        for key, value in self.headers.items():
+            output.append(f"  {key}: {value}")
+        if self.payload:
+            output.append("Payload:")
+            output.append(f"  {self.payload[:100]}..." if len(self.payload) > 100 else f"  {self.payload}")
+        return '\n'.join(output)
+
     def parse_http_data(self):
         try:
             if self.raw_data:
