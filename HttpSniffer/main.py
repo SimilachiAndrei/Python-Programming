@@ -126,7 +126,7 @@ try:
     # raw_socket.bind(("wlo1",0))
 
     while True:
-        packet, addr = raw_socket.recvfrom(256)
+        packet, addr = raw_socket.recvfrom(65535)
 
         ethernet_header = Ethernet(packet[:14])
         ip_header = IP(packet[14:34])
