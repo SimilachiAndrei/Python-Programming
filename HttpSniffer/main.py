@@ -99,28 +99,50 @@ class HTTP:
 
     def parse_http_data(self):
         try:
-            if self.raw_data:
-                data_str = self.raw_data.decode('utf-8', errors='ignore')
+            if not self.raw_data:
+                return
 
-                parts = data_str.split('\r\n\r\n', 1)
-                headers_section = parts[0]
-                self.payload = parts[1] if len(parts) > 1 else None
+            header_data = self.raw_data
+            if isinstance(header_data, bytes):
+                try:
+                    header_end = header_data.find(b'\r\n\r\n')
+                    if header_end == -1:
+                        return
+                    headers_bytes = header_data[:header_end]
+                    headers_str = headers_bytes.decode('utf-8', errors='ignore')
+                except Exception as e:
+                    print(f"Warning: Unable to decode headers: {e}")
+                    return
+            else:
+                headers_str = header_data
 
-                lines = headers_section.split('\r\n')
-                if lines:
-                    request_line = lines[0].split(' ')
-                    if len(request_line) >= 3:
-                        self.method = request_line[0]
-                        self.uri = request_line[1]
-                        self.version = request_line[2]
+            lines = [line.strip() for line in headers_str.split('\r\n') if line.strip()]
+            if not lines:
+                return
 
-                    for line in lines[1:]:
-                        if ': ' in line:
-                            key, value = line.split(': ', 1)
-                            self.headers[key.lower()] = value
+            first_line_parts = lines[0].split(' ', 2)
+            if len(first_line_parts) >= 3:
+                if first_line_parts[0].startswith('HTTP/'):
+                    self.is_response = True
+                    self.version = first_line_parts[0]
+                    self.status_code = first_line_parts[1]
+                    self.status_message = first_line_parts[2]
+                else:
+                    self.method = first_line_parts[0]
+                    self.uri = first_line_parts[1]
+                    self.version = first_line_parts[2]
+
+            for line in lines[1:]:
+                if ': ' in line:
+                    key, value = line.split(': ', 1)
+                    self.headers[key.lower()] = value
+
+            if isinstance(self.raw_data, bytes):
+                payload_start = header_end + 4
+                self.payload = self.raw_data[payload_start:] if payload_start < len(self.raw_data) else None
 
         except Exception as e:
-            print(f"Error parsing HTTP data: {e}")
+            print(f"Warning: Error parsing HTTP data: {e}")
 
 
 
