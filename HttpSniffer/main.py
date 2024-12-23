@@ -1,6 +1,8 @@
+import gzip
 import socket
 import struct
 from ctypes import *
+from io import BytesIO
 
 class Ethernet(Structure):
     _fields_ = [
@@ -87,14 +89,38 @@ class HTTP:
 
     def __str__(self):
         output = []
-        if self.method and self.uri and self.version:
-            output.append(f"HTTP Request: {self.method} {self.uri} {self.version}")
-        output.append("Headers:")
-        for key, value in self.headers.items():
-            output.append(f"  {key}: {value}")
+        if self.is_response:
+            if self.version and self.status_code and self.status_message:
+                output.append(f"HTTP Response: {self.version} {self.status_code} {self.status_message}")
+        else:
+            if self.method and self.uri and self.version:
+                output.append(f"HTTP Request: {self.method} {self.uri} {self.version}")
+
+        if self.headers:
+            output.append("Headers:")
+            for key, value in self.headers.items():
+                output.append(f"  {key}: {value}")
+
         if self.payload:
             output.append("Payload:")
-            output.append(f"  {self.payload[:100]}..." if len(self.payload) > 100 else f"  {self.payload}")
+            try:
+                if isinstance(self.payload, bytes):
+                    if 'content-encoding' in self.headers and self.headers['content-encoding'] == 'gzip':
+                        try:
+                            gzip_data = BytesIO(self.payload)
+                            with gzip.GzipFile(fileobj=gzip_data, mode='rb') as gz:
+                                decoded_payload = gz.read().decode('utf-8', errors='ignore')
+                        except Exception as e:
+                            decoded_payload = f"[Gzipped content - {len(self.payload)} bytes]"
+                    else:
+                        decoded_payload = self.payload.decode('utf-8', errors='ignore')
+                else:
+                    decoded_payload = str(self.payload)
+
+                output.append(f"  {decoded_payload}")
+            except Exception as e:
+                output.append(f"  [Binary data - {len(self.payload)} bytes]")
+
         return '\n'.join(output)
 
     def parse_http_data(self):
