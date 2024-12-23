@@ -71,6 +71,7 @@ class TCP(Structure):
             self.sport = socket.ntohs(self.sport)
             self.dport = socket.ntohs(self.dport)
 
+
 class HTTP:
     def __init__(self, raw_data):
         self.raw_data = raw_data
@@ -79,6 +80,33 @@ class HTTP:
         self.version = None
         self.headers = {}
         self.payload = None
+        self.parse_http_data()
+
+    def parse_http_data(self):
+        try:
+            if self.raw_data:
+                data_str = self.raw_data.decode('utf-8', errors='ignore')
+
+                parts = data_str.split('\r\n\r\n', 1)
+                headers_section = parts[0]
+                self.payload = parts[1] if len(parts) > 1 else None
+
+                lines = headers_section.split('\r\n')
+                if lines:
+                    request_line = lines[0].split(' ')
+                    if len(request_line) >= 3:
+                        self.method = request_line[0]
+                        self.uri = request_line[1]
+                        self.version = request_line[2]
+
+                    for line in lines[1:]:
+                        if ': ' in line:
+                            key, value = line.split(': ', 1)
+                            self.headers[key.lower()] = value
+
+        except Exception as e:
+            print(f"Error parsing HTTP data: {e}")
+
 
 
 try:
