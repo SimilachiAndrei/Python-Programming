@@ -128,19 +128,32 @@ class HTTP:
             if not self.raw_data:
                 return
 
-            header_data = self.raw_data
-            if isinstance(header_data, bytes):
-                try:
-                    header_end = header_data.find(b'\r\n\r\n')
-                    if header_end == -1:
-                        return
-                    headers_bytes = header_data[:header_end]
-                    headers_str = headers_bytes.decode('utf-8', errors='ignore')
-                except Exception as e:
-                    print(f"Warning: Unable to decode headers: {e}")
+            if not isinstance(self.raw_data, bytes):
+                return
+
+            start_index = -1
+            for i in range(len(self.raw_data)):
+                if self.raw_data[i:].startswith(b'HTTP/') or \
+                        any(self.raw_data[i:].startswith(method.encode()) for method in
+                            ['GET ', 'POST ', 'PUT ', 'DELETE ', 'HEAD ', 'OPTIONS ', 'CONNECT ', 'TRACE ', 'PATCH ']):
+                    start_index = i
+                    break
+
+            if start_index == -1:
+                return
+
+            http_data = self.raw_data[start_index:]
+
+            header_data = http_data
+            try:
+                header_end = header_data.find(b'\r\n\r\n')
+                if header_end == -1:
                     return
-            else:
-                headers_str = header_data
+                headers_bytes = header_data[:header_end]
+                headers_str = headers_bytes.decode('utf-8', errors='ignore')
+            except Exception as e:
+                print(f"Warning: Unable to decode headers: {e}")
+                return
 
             lines = [line.strip() for line in headers_str.split('\r\n') if line.strip()]
             if not lines:
@@ -163,9 +176,8 @@ class HTTP:
                     key, value = line.split(': ', 1)
                     self.headers[key.lower()] = value
 
-            if isinstance(self.raw_data, bytes):
-                payload_start = header_end + 4
-                self.payload = self.raw_data[payload_start:] if payload_start < len(self.raw_data) else None
+            payload_start = start_index + header_end + 4
+            self.payload = self.raw_data[payload_start:] if payload_start < len(self.raw_data) else None
 
         except Exception as e:
             print(f"Warning: Error parsing HTTP data: {e}")
