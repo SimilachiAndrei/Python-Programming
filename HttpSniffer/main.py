@@ -5,6 +5,7 @@ from ctypes import *
 import sys
 from io import BytesIO
 
+
 class Ethernet(Structure):
     _fields_ = [
         ("dst", c_ubyte * 6),
@@ -183,6 +184,7 @@ class HTTP:
         except Exception as e:
             print(f"Warning: Error parsing HTTP data: {e}")
 
+
 def parse_filters():
     filters = {}
     i = 1
@@ -200,6 +202,30 @@ def parse_filters():
         else:
             i += 1
     return filters
+
+
+def apply_filters(filters, eth_header, ip_header, tcp_header, http_header):
+    if not filters:
+        return True
+
+    for filter in filters:
+        if filter == "ip":
+            if ip_header.src_address != filters[filter]:
+                return False
+        elif filter == "port":
+            if tcp_header.sport != filters[filter]:
+                return False
+        elif filter == "method":
+            if http_header.method != filters[filter]:
+                return False
+        elif filter == "type":
+            if http_header.is_response and filters[filter] == "REQUEST":
+                return False
+            if not http_header.is_response and filters[filter] == "RESPONSE":
+                return False
+
+    return True
+
 
 try:
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
