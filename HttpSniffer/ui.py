@@ -36,3 +36,9 @@ class UI:
         print("\nEthernet Layer:")
         print(f"  Source MAC: {request['ethernet'].src_mac}")
         print(f"  Destination MAC: {request['ethernet'].dst_mac}")
+
+    def display_ip_info(self, request):
+        print("\nIP Layer:")
+        print(f"  Source IP: {request['ip'].src_address}")
+        print(f"  Destination IP: {request['ip'].dst_address}")
+        print(f"  Protocol: {request['ip'].protocol}")
