@@ -42,3 +42,8 @@ class UI:
         print(f"  Source IP: {request['ip'].src_address}")
         print(f"  Destination IP: {request['ip'].dst_address}")
         print(f"  Protocol: {request['ip'].protocol}")
+
+    def display_tcp_info(self, request):
+        print("\nTCP Layer:")
+        print(f"  Source Port: {request['tcp'].sport}")
+        print(f"  Destination Port: {request['tcp'].dport}")
