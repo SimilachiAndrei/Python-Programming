@@ -12,7 +12,6 @@ class UI:
         print("2. View request details")
         print("3. Exit program")
 
-
     def list_requests(self):
         requests = self.request_store.list_requests()
         print("\nCaptured Requests:")
@@ -21,7 +20,6 @@ class UI:
                 print(f"{idx}. Response: {req['http'].status_code} from {req['ip'].src_address}")
             else:
                 print(f"{idx}. {req['http'].method} to {req['ip'].dst_address}")
-
 
     def display_detail_options(self):
         print("\nChoose what information to view (comma-separated):")
@@ -57,3 +55,12 @@ class UI:
 
         for key, value in request['http'].headers.items():
             print(f"  {key}: {value}")
+
+    def display_gzipped_payload(self, payload):
+        try:
+            gzip_data = BytesIO(payload)
+            with gzip.GzipFile(fileobj=gzip_data, mode='rb') as gz:
+                decoded_payload = gz.read().decode('utf-8', errors='ignore')
+            print(f"  {decoded_payload}")
+        except Exception:
+            print(f"  [Gzipped content - {len(payload)} bytes]")
