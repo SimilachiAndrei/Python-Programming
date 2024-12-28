@@ -228,6 +228,7 @@ def apply_filters(filters, eth_header, ip_header, tcp_header, http_header):
 
 
 try:
+    filters = parse_filters()
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
     print("Listening for HTTP packets... Press Ctrl+C to stop.")
 
@@ -248,19 +249,20 @@ try:
                 if payload:
                     http = HTTP(payload)
                     if http.headers:
-                        print("Ethernet:")
-                        print(f"  Source MAC: {ethernet_header.src_mac}")
-                        print(f"  Destination MAC: {ethernet_header.dst_mac}")
-                        print(f"  Protocol: {ethernet_header.proto}")
-                        print("IP:")
-                        print(f"  Source: {ip_header.src_address}")
-                        print(f"  Destination: {ip_header.dst_address}")
-                        print(f"  Protocol: {ip_header.protocol}")
-                        print("TCP:")
-                        print(f"  Source Port: {tcp_header.sport}")
-                        print(f"  Destination Port: {tcp_header.dport}")
-                        print(http)
-                        print("-" * 50)
+                        if apply_filters(filters, ethernet_header, ip_header, tcp_header, http):
+                            print("Ethernet:")
+                            print(f"  Source MAC: {ethernet_header.src_mac}")
+                            print(f"  Destination MAC: {ethernet_header.dst_mac}")
+                            print(f"  Protocol: {ethernet_header.proto}")
+                            print("IP:")
+                            print(f"  Source: {ip_header.src_address}")
+                            print(f"  Destination: {ip_header.dst_address}")
+                            print(f"  Protocol: {ip_header.protocol}")
+                            print("TCP:")
+                            print(f"  Source Port: {tcp_header.sport}")
+                            print(f"  Destination Port: {tcp_header.dport}")
+                            print(http)
+                            print("-" * 50)
 
 except socket.error as e:
     print(f"Socket error: {e}")
