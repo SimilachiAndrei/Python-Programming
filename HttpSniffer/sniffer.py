@@ -4,6 +4,7 @@ from ether import Ethernet
 from tcp import TCP
 from ip import  IP
 from http import HTTP
+from storage import RequestStorage
 
 def parse_filters():
     filters = {}
@@ -47,14 +48,17 @@ def apply_filters(filters, eth_header, ip_header, tcp_header, http_header):
     return True
 
 
+request_store = RequestStorage()
+
 try:
     filters = parse_filters()
+    print(f"Applied filters: {filters}")
+
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
     print("Listening for HTTP packets... Press Ctrl+C to stop.")
 
     while True:
         packet, addr = raw_socket.recvfrom(65535)
-
         ethernet_header = Ethernet(packet[:14])
         ip_header = IP(packet[14:34])
 
@@ -70,19 +74,14 @@ try:
                     http = HTTP(payload)
                     if http.headers:
                         if apply_filters(filters, ethernet_header, ip_header, tcp_header, http):
-                            print("Ethernet:")
-                            print(f"  Source MAC: {ethernet_header.src_mac}")
-                            print(f"  Destination MAC: {ethernet_header.dst_mac}")
-                            print(f"  Protocol: {ethernet_header.proto}")
-                            print("IP:")
-                            print(f"  Source: {ip_header.src_address}")
-                            print(f"  Destination: {ip_header.dst_address}")
-                            print(f"  Protocol: {ip_header.protocol}")
-                            print("TCP:")
-                            print(f"  Source Port: {tcp_header.sport}")
-                            print(f"  Destination Port: {tcp_header.dport}")
-                            print(http)
-                            print("-" * 50)
+                            request_data = {
+                                'ethernet': ethernet_header,
+                                'ip': ip_header,
+                                'tcp': tcp_header,
+                                'http': http
+                            }
+                            idx = request_store.add_request(request_data)
+                            print(f"\nNew request captured (#{idx})")
 
 except socket.error as e:
     print(f"Socket error: {e}")
