@@ -11,3 +11,9 @@ class RequestStorage:
         with self.request_lock:
             self.requests.append(request_data)
             return len(self.requests) - 1
+
+    def get_request(self, index):
+        with self.request_lock:
+            if 0 <= index < len(self.requests):
+                return self.requests[index]
+            return None
