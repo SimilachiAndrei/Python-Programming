@@ -2,6 +2,7 @@ import gzip
 import socket
 import struct
 from ctypes import *
+import sys
 from io import BytesIO
 
 class Ethernet(Structure):
@@ -182,7 +183,23 @@ class HTTP:
         except Exception as e:
             print(f"Warning: Error parsing HTTP data: {e}")
 
-
+def parse_filters():
+    filters = {}
+    i = 1
+    while i < len(sys.argv):
+        if i + 1 < len(sys.argv):
+            if sys.argv[i] == "-ip":
+                filters["ip"] = sys.argv[i + 1]
+            elif sys.argv[i] == "-method":
+                filters["method"] = sys.argv[i + 1].upper()
+            elif sys.argv[i] == "-port":
+                filters["port"] = int(sys.argv[i + 1])
+            elif sys.argv[i] == "-type":
+                filters["type"] = sys.argv[i + 1].upper()
+            i += 2
+        else:
+            i += 1
+    return filters
 
 try:
     raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
