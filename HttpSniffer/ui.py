@@ -31,3 +31,8 @@ class UI:
         print("4. HTTP Headers")
         print("5. HTTP Payload")
         print("6. All")
+
+    def display_ethernet_info(self, request):
+        print("\nEthernet Layer:")
+        print(f"  Source MAC: {request['ethernet'].src_mac}")
+        print(f"  Destination MAC: {request['ethernet'].dst_mac}")
