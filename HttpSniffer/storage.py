@@ -17,3 +17,7 @@ class RequestStorage:
             if 0 <= index < len(self.requests):
                 return self.requests[index]
             return None
+
+    def list_requests(self):
+        with self.request_lock:
+            return list(enumerate(self.requests))
