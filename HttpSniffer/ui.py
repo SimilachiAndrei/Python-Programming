@@ -47,3 +47,13 @@ class UI:
         print("\nTCP Layer:")
         print(f"  Source Port: {request['tcp'].sport}")
         print(f"  Destination Port: {request['tcp'].dport}")
+
+    def display_http_headers(self, request):
+        print("\nHTTP Headers:")
+        if request['http'].is_response:
+            print(f"  Status: {request['http'].version} {request['http'].status_code} {request['http'].status_message}")
+        else:
+            print(f"  Request: {request['http'].method} {request['http'].uri} {request['http'].version}")
+
+        for key, value in request['http'].headers.items():
+            print(f"  {key}: {value}")
