@@ -30,6 +30,24 @@ class UI:
         print("5. HTTP Payload")
         print("6. All")
 
+    def display_selected_details(self, request, choices):
+        print("\nDetailed Request Information:")
+
+        if '6' in choices or '1' in choices:
+            self.display_ethernet_info(request)
+
+        if '6' in choices or '2' in choices:
+            self.display_ip_info(request)
+
+        if '6' in choices or '3' in choices:
+            self.display_tcp_info(request)
+
+        if '6' in choices or '4' in choices:
+            self.display_http_headers(request)
+
+        if '6' in choices or '5' in choices:
+            self.display_http_payload(request)
+
     def display_ethernet_info(self, request):
         print("\nEthernet Layer:")
         print(f"  Source MAC: {request['ethernet'].src_mac}")
