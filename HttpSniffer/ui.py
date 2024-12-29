@@ -12,6 +12,16 @@ class UI:
         print("2. View request details")
         print("3. Exit program")
 
+    def handle_choice(self, choice):
+        if choice == "1":
+            self.list_requests()
+        elif choice == "2":
+            self.view_request_details()
+        elif choice == "3":
+            sys.exit(0)
+        else:
+            print("Invalid choice!")
+
     def list_requests(self):
         requests = self.request_store.list_requests()
         print("\nCaptured Requests:")
