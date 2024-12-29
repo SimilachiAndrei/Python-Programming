@@ -21,6 +21,17 @@ class UI:
             else:
                 print(f"{idx}. {req['http'].method} to {req['ip'].dst_address}")
 
+    def view_request_details(self):
+        idx = int(input("Enter request number: "))
+        request = self.request_store.get_request(idx)
+        if request:
+            self.display_detail_options()
+            view_choice = input("\nEnter your choices (e.g., 1,3,4): ")
+            choices = [c.strip() for c in view_choice.split(',')]
+            self.display_selected_details(request, choices)
+        else:
+            print("Request not found!")
+
     def display_detail_options(self):
         print("\nChoose what information to view (comma-separated):")
         print("1. Ethernet")
