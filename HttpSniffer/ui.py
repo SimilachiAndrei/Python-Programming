@@ -56,6 +56,13 @@ class UI:
         for key, value in request['http'].headers.items():
             print(f"  {key}: {value}")
 
+    def display_http_payload(self, request):
+        print("\nHTTP Payload:")
+        if request['http'].payload:
+            self.handle_payload_display(request['http'])
+        else:
+            print("  No payload")
+
     def handle_payload_display(self, http):
         try:
             if isinstance(http.payload, bytes):
