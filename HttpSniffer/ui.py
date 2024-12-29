@@ -6,6 +6,17 @@ class UI:
     def __init__(self, request_store):
         self.request_store = request_store
 
+    def start(self):
+        while True:
+            try:
+                self.display_menu()
+                choice = input()
+                self.handle_choice(choice)
+            except ValueError as e:
+                print(f"Invalid input: {e}")
+            except Exception as e:
+                print(f"Error: {e}")
+
     def display_menu(self):
         print("\nCommands:")
         print("1. List all captured requests")
