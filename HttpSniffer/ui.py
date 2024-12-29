@@ -56,6 +56,18 @@ class UI:
         for key, value in request['http'].headers.items():
             print(f"  {key}: {value}")
 
+    def handle_payload_display(self, http):
+        try:
+            if isinstance(http.payload, bytes):
+                if 'content-encoding' in http.headers and http.headers['content-encoding'] == 'gzip':
+                    self.display_gzipped_payload(http.payload)
+                else:
+                    print(f"  {http.payload.decode('utf-8', errors='ignore')}")
+            else:
+                print(f"  {http.payload}")
+        except Exception:
+            print(f"  [Binary data - {len(http.payload)} bytes]")
+
     def display_gzipped_payload(self, payload):
         try:
             gzip_data = BytesIO(payload)
