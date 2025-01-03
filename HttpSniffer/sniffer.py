@@ -2,9 +2,13 @@ import socket
 import sys
 from ether import Ethernet
 from tcp import TCP
-from ip import  IP
+from ip import IP
 from http import HTTP
 from storage import RequestStorage
+import threading
+
+from ui import UI
+
 
 def parse_filters():
     filters = {}
@@ -49,6 +53,9 @@ def apply_filters(filters, eth_header, ip_header, tcp_header, http_header):
 
 
 request_store = RequestStorage()
+ui = UI(request_store)
+ui_thread = threading.Thread(target=ui.start)
+ui_thread.start()
 
 try:
     filters = parse_filters()
