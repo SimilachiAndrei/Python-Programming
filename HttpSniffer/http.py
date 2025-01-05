@@ -1,8 +1,35 @@
+"""
+Module: http
+
+This module defines the HTTP class, which provides utilities for parsing and handling
+HTTP requests and responses. It supports parsing headers, methods, URIs, and payloads.
+"""
 import gzip
 from io import BytesIO
 
 class HTTP:
+    """
+    Represents an HTTP message, capable of parsing both requests and responses.
+
+    Attributes:
+        raw_data (bytes): The raw HTTP message as received.
+        method (str): The HTTP method (e.g., GET, POST) for requests.
+        uri (str): The requested URI for requests.
+        version (str): The HTTP version (e.g., HTTP/1.1).
+        status_code (int): The status code for responses.
+        status_message (str): The status message for responses.
+        headers (dict): A dictionary of HTTP headers.
+        payload (bytes): The body of the HTTP message.
+        is_response (bool): Indicates if the message is a response.
+    """
+
     def __init__(self, raw_data):
+        """
+        Initializes the HTTP object by parsing the raw HTTP data.
+
+        Args:
+            raw_data (bytes): The raw HTTP message to be parsed.
+        """
         self.raw_data = raw_data
         self.method = None
         self.uri = None
@@ -15,6 +42,13 @@ class HTTP:
         self.parse_http_data()
 
     def __str__(self):
+        """
+        Returns a string representation of the HTTP message, including headers and payload.
+
+        Returns:
+            str: A human-readable representation of the HTTP message.
+        """
+
         output = []
         if self.is_response:
             if self.version and self.status_code and self.status_message:
@@ -51,6 +85,13 @@ class HTTP:
         return '\n'.join(output)
 
     def parse_http_data(self):
+        """
+        Parses the raw HTTP data to populate the object's attributes.
+
+        This method identifies if the data is a request or response and extracts
+        headers, method, URI, status code, status message, and payload.
+        """
+
         try:
             if not self.raw_data:
                 return
