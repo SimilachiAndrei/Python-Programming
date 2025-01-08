@@ -99,7 +99,7 @@ class PacketSniffer:
             elif filter_key == "method" and http_header.method != filter_value:
                 return False
             elif filter_key == "type":
-                is_request = not http_header.is_response
+                is_request = http_header.is_response
                 if (filter_value == "REQUEST" and not is_request) or \
                    (filter_value == "RESPONSE" and is_request):
                     return False
